@@ -1,0 +1,87 @@
+	 	 	
+Alfredo Gallardo 06-39563
+Erick Dos Ramos 07-40845
+
+Nuestro proyecto consta de los siguientes Archivos:
+bomba.c  bomba.h  centro.c  centro.h  colaP.c  colaP.h  esManejador.c  esManejador.h
+
+homba.c y bomba.h: son los encargados de representar a la entidad bomba durante la simulación, 
+la cual actuará como cliente en la arquitectura cliente servidor. Este archivo, consta de primero 
+la verificacion de parametros de entrada. Seguidamente presentamos la lectura del archivo que 
+informa al cliente cuales son los servidores disponibles, a los cuales nos conectamos por medio 
+del puerto indicados, para almacenar la información referente a los tiempos de atención de cada 
+servidor, y colocarlos en una cola de prioridades, siendo al prioridad el que posea el menor 
+tiempo de servicio.
+
+Luego de tener toda la información almacenada, procedemos a iniciar la simulación con un 
+while(tiempoBomba > 0 ) para indicar que aún no ha terminado el tiempo de la simulación que 
+es 480 min. Cada min la bomba va a ir consumiendo su inventario, por lo que cuando prediga 
+que posea suficiente cantidad para realizar una petición al servidor es que se realizará la 
+acción, tomando en cuenta el tiempo que tarda la gandola con el combustible 
+if (inv <= maxCap - 38000 + predecir, siendo predecir el consumo cliente * tiempo de servicio servidor) .
+ Ya nuestra implementación de la bomba esta casi completa, falta realizar las pruebas necesarias 
+para asegurar el completo y correcto funcionamiento.
+
+centro.c  centro.h : son los encargados de representar la entidad centro durante la simulación, 
+la cual actuará como el servidor en la arquitectura cliente servidor. Este archivo es muy similar 
+a la bomba.c al inicio, puesto que la validación es similar, pero este necesita del uso de hilos,
+para manejar el tiempo de la simulación y para manejar el funcionamiento del centro en si, es decir, 
+atender la solicitud, puesto que nuestro centro consta del padre, el cual siempre esta escuchando a 
+cuando es solicitado, sin embargo, este cambia su estado de disponible a no disponible, dependiendo 
+de si su hijo está o no trabajando. 
+
+Al igual que la bomba, el centro cada segundo va cambiando su inventario, en este caso, no disminuye, 
+sino que aumenta dependiendo de la cantidad de suministro por min con la cual se llame. Ya nuestra 
+implementación del centro esta casi completa, falta al igual que la bomba, realizar las pruebas necesarias
+ para asegurar el completo y correcto funcionamiento.
+
+colaP.c  colaP.h : son los archivos en los que creamos el tipo de dato Cola de prioridades, donde 
+colocamos la información necesaria sobre los servidores para saber en qué orden realizar las peticiones 
+a los mismo.
+
+esManejador.c  esManejador.h : Es el archivo en donde colocamos la función referente al manejo 
+del archivo de salida.
+
+Makefile : make para compilar, make clean para limpiar.
+
+
+----------------------------------------- Consideraciones del Proyecto: -------------------------------------------
+Utilizamos en ambos archivos, tanto en bomba, como en centro, hilos para el manejor de diferentes
+factores:
+
+1) Uso de Hilos para manejar el tiempo de la simulación, y el cambio del inventario a traves del mismo,
+es decir, si se trata de una bomba, el inventario descenderá la cantidad que se colocó en la invocación del
+programa. Por otro lado, si se trata del caso de un centro, el inventario se incrementará la cantidad igualmente
+indicada.
+
+2) Al mismo tiempo usamos hilos para manejar la concurrencia de los trabajos que se le sean solicitados al centro,
+por medio de las bombas. Tomando en cuenta, que consideramos la concurrencia máxima de atención a cinco bombas.
+
+3) Nuestro servidor posee un "protocolo" de comunicación que especificamos a continuación:
+	- Si el servidor escucha por el socket el string "Tiempo", el mismo, deberá indicar a la bomba
+que realizó la comunicación su tiempo de servicio.
+	- Si el servidor escucha por el socket el string de la forma "D&nombreBomba", con el que se interpretará
+D para si está o no disponible. Y el nombre de la Bomba, para tener la información y reportar a que bomba esta
+atendiendo.
+
+4) Poseemos un manejo de semáforos, para evitar solapamiento al momento de escritura de variables Globales,
+lo representamos por medio del uso de la variable "flag1" tanto en bomba, como en el centro. 
+
+5) Consideramos innecesario la escritura de partes del codigo como funciones, por ejemplo: El caso de la
+validación de entrada de los archivos y parámetros, puesto que solo es utilizada una sola vez, y son
+diferentes validaciones tanto para bomba como centro.
+ 
+------------------------------------------ Posibles Errores: -------------------------------------------------------
+
+Debido a que nos hemos visto en la necesidad de cambiar la metodología del proyecto en varias ocasiones,
+es posible que existan diversos problemas en cuanto al tiempo de simulación. Puesto que existen los diferentes
+escenarios:
+
+1) El tiempo entre el servidor y el cliente, puede estar desfasado entre 2-5 min de simulación, debido a que
+los hilos no poseen un vínculo entre ellos, manejandose asi de manera individual.
+
+2) La coordinacion de los tiempos en el bomba no siempre es perfecta, puesto que el sleep de 1 segundos del hijo que
+mide el tiempo puede generar algún problema con el sleep que se genera en el padre.
+
+3) Los parametros pueden colocarse en diferente orden, sin embargo, debe estar primero la capacidad maxima
+antes de la declaracion del inventario.
